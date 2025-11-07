@@ -2,14 +2,14 @@
 #include <sstream>
 #include <string>
 
-// Base Shape class
+// Component: The base interface for objects that can be decorated.
 class Shape
 {
 public:
   virtual std::string str() const = 0;
 };
 
-// Circle class
+// Concrete Component: A basic implementation of the interface.
 class Circle : public Shape
 {
 public:
@@ -25,7 +25,7 @@ public:
   }
 };
 
-// Square class
+// Concrete Component: Another basic implementation.
 class Square : public Shape
 {
 public:
@@ -52,20 +52,22 @@ Antipattern:
 const auto ColorRed = 31;
 const auto ColorBlue = 34;
 
-// ColoredShape decorator class
+// Decorator: Also implements the Shape interface. It wraps another Shape object.
 class ColoredShape : public Shape
 {
   // https://iq.opengenus.org/print-text-in-color-in-c/
   static constexpr const char *colorCode = "\033[1;{}m"; // ansi escape code for colors
   int color;
-  Shape &shape; // use composition, not inheritance
+  Shape &shape; // Composition: The decorator holds a reference to the component it wraps.
 public:
   ColoredShape(const int color, Shape &shape) : color(color), shape(shape) {}
 
   std::string str() const override
   {
     std::stringstream ss;
+    // 1. Delegate the call to the wrapped object.
     ss << shape.str();
+    // 2. Add its own behavior.
     if (color == ColorRed)
     {
       ss << " having color red";
@@ -80,11 +82,15 @@ public:
 
 int main()
 {
+  // Create concrete component objects.
   Square square(5);  // A square with side length 5
   Circle circle(10); // A circle with radius 10
-  // Dynamically add color using the decorator
+
+  // Dynamically "wrap" the components with decorators to add new functionality.
   ColoredShape redSquare(ColorRed, square);
   ColoredShape blueCircle(ColorBlue, circle);
+
+  // Call the same `str()` method, which now includes the decorated behavior.
   std::cout << redSquare.str() << std::endl;
   std::cout << blueCircle.str() << std::endl;
   std::cout << square.str() << std::endl;
